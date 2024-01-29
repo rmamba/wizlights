@@ -4,7 +4,7 @@ const dgram = require('dgram');
 const mqtt = require('mqtt');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-const subscribeToAddress = (process.env.PUBLISH_VALUES || 'dimming|temp|state|sceneId').split('|');
+const publishValues = (process.env.PUBLISH_VALUES || 'dimming|temp|state|sceneId').split('|');
 
 const DEBUG = (process.env.DEBUG || 'false') === 'true';
 const MQTT_CLIENT_ID = process.env.MQTT_CLIENT_ID || 'wizLights';
@@ -38,7 +38,7 @@ const ProcessData = (ip, buffer) => {
     Object.keys(data.result).forEach(key => {
         const path = `${mqttPathPrefix}/${key}`;
         if (cache[mac][key] !== data.result[key]) {
-            if (subscribeToAddress.indexOf(key) !== -1) {
+            if (publishValues.indexOf(key) !== -1) {
                 mqttClient.publishAsync(path, data.result[key].toString());
             }
             cache[mac][key] = data.result[key];
