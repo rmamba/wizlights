@@ -7,6 +7,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const publishValues = (process.env.PUBLISH_VALUES || 'dimming|temp|state|sceneId').split('|');
 
 const DEBUG = (process.env.DEBUG || 'false') === 'true';
+const UDP_DISCOVER_IP = process.env.UDP_DISCOVER_IP || '255.255.255.255';
 const MQTT_CLIENT_ID = process.env.MQTT_CLIENT_ID || 'wizLights';
 const MQTT_PREFIX = process.env.MQTT_PREFIX || 'wiz';
 const MQTT_SERVER = process.env.MQTT_SERVER || '127.0.0.1';
@@ -93,7 +94,7 @@ const run = async () => {
         if (DEBUG) {
             console.log('send message');
         }
-        broadcastClient.send(msg, 38899, '255.255.255.255', (err, bytes) => {
+        broadcastClient.send(msg, 38899, UDP_DISCOVER_IP, (err, bytes) => {
           if (err) {
             console.error('broadcast error', err);
           }
