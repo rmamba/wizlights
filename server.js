@@ -7,6 +7,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const publishValues = (process.env.PUBLISH_VALUES || 'dimming|temp|state|sceneId').split('|');
 
 const DEBUG = (process.env.DEBUG || 'false') === 'true';
+const WEBUI_PORT = parseInt(process.env.WEBUI_PORT || '38899');
 const UDP_DISCOVER_IP = process.env.UDP_DISCOVER_IP || '255.255.255.255';
 const MQTT_CLIENT_ID = process.env.MQTT_CLIENT_ID || 'wizLights';
 const MQTT_PREFIX = process.env.MQTT_PREFIX || 'wiz';
@@ -83,7 +84,7 @@ const run = async () => {
         await sleep(1000);
     }
 
-    console.log('Setting UDP discovery...');
+    console.log(`Setting UDP discovery on ${UDP_DISCOVER_IP}...`);
     broadcastClient = dgram.createSocket('udp4');
     broadcastClient.on('listening', () => {
       console.log('now listening...')
@@ -243,7 +244,7 @@ const run = async () => {
         });
     });
 
-    app.listen(3000)
+    app.listen(WEBUI_PORT)
 
     console.log('Done...');
 }
