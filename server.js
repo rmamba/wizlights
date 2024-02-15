@@ -52,6 +52,10 @@ const ProcessData = (ip, buffer) => {
     }
 };
 
+const limitParseInt = (num, min, max) => {
+    return Math.min(Math.max(parseInt(num), min), max);
+}
+
 const run = async () => {
     const mqttConfig = {
         clientId: MQTT_CLIENT_ID,
@@ -156,7 +160,7 @@ const run = async () => {
         });
     });
 
-    app.post('/:mac/status/:status/dim/:dim', function (req, res) {
+    app.post('/:mac/dim/:dim', function (req, res) {
         if (!cache[req.params.mac]) {
             res.status(404);
             res.json({
@@ -164,51 +168,7 @@ const run = async () => {
             });
             return;
         }
-        const msg = `{"id":1,"method":"setState","params":{"state":${req.params.status === '1' ? 'true' : 'false'},"dimming":${parseInt(req.params.dim)}}}`;
-        broadcastClient.send(msg, 38899, cache[req.params.mac].ip, (err, bytes) => {
-            if (err) {
-                console.error('broadcast error', err);
-                res.status(400);
-                // res
-            } else {
-                res.setHeader("Content-Type", "application/json");
-                res.status(200);
-                res.json({ message: 'ok' });
-            }
-        });
-    });
-
-    // app.post('/:mac/scene/:val', function (req, res) {
-    //     if (!cache[req.params.mac]) {
-    //         res.status(404);
-    //         res.json({
-    //             message: 'not found'
-    //         });
-    //         return;
-    //     }
-    //     const msg = `{"id":1,"method":"setState","params":{"state":${req.params.val === '1' ? 'true' : 'false'}}}`;
-    //     broadcastClient.send(msg, 38899, cache[req.params.mac].ip, (err, bytes) => {
-    //         if (err) {
-    //             console.error('broadcast error', err);
-    //             res.status(400);
-    //             // res
-    //         } else {
-    //             res.setHeader("Content-Type", "application/json");
-    //             res.status(200);
-    //             res.json({ message: 'ok' });
-    //         }
-    //     });
-    // });
-
-    app.post('/:mac/dim/:val', function (req, res) {
-        if (!cache[req.params.mac]) {
-            res.status(404);
-            res.json({
-                message: 'not found'
-            });
-            return;
-        }
-        const msg = `{"id":1,"method":"setState","params":{"dimming":${parseInt(req.params.val)}}}`;
+        const msg = `{"id":1,"method":"setPilot","params":{"state":true,"dimming":${limitParseInt(req.params.dim, 0, 100)}}}`;
         broadcastClient.send(msg, 38899, cache[req.params.mac].ip, (err, bytes) => {
             if (err) {
                 console.error('broadcast error', err);
@@ -230,7 +190,29 @@ const run = async () => {
             });
             return;
         }
-        const msg = `{"id":1,"method":"setState","params":{"sceneId":${parseInt(req.params.sceneId)}}}`;
+        const msg = `{"id":1,"method":"setPilot","params":{"state":true,"sceneId":${limitParseInt(req.params.sceneId, 1, 32)}}}`;
+        broadcastClient.send(msg, 38899, cache[req.params.mac].ip, (err, bytes) => {
+            if (err) {
+                console.error('broadcast error', err);
+                res.status(400);
+                res.end();
+            } else {
+                res.setHeader("Content-Type", "application/json");
+                res.status(200);
+                res.json({ message: 'ok' });
+            }
+        });
+    });
+
+    app.post('/:mac/scene/:sceneId/dim/:dim', function (req, res) {
+        if (!cache[req.params.mac]) {
+            res.status(404);
+            res.json({
+                message: 'not found'
+            });
+            return;
+        }
+        const msg = `{"id":1,"method":"setPilot","params":{"state":true,"sceneId":${limitParseInt(req.params.sceneId, 1, 32)},"dimming":${limitParseInt(req.params.dim, 0, 100)}}}`;
         broadcastClient.send(msg, 38899, cache[req.params.mac].ip, (err, bytes) => {
             if (err) {
                 console.error('broadcast error', err);
