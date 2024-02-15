@@ -226,6 +226,28 @@ const run = async () => {
         });
     });
 
+    app.post('/:mac/temp/:temp', function (req, res) {
+        if (!cache[req.params.mac]) {
+            res.status(404);
+            res.json({
+                message: 'not found'
+            });
+            return;
+        }
+        const msg = `{"id":1,"method":"setPilot","params":{"state":true,"temp":${limitParseInt(req.params.temp, 2200, 6100)}}}`;
+        broadcastClient.send(msg, 38899, cache[req.params.mac].ip, (err, bytes) => {
+            if (err) {
+                console.error('broadcast error', err);
+                res.status(400);
+                res.end();
+            } else {
+                res.setHeader("Content-Type", "application/json");
+                res.status(200);
+                res.json({ message: 'ok' });
+            }
+        });
+    });
+
     app.listen(WEBUI_PORT)
 
     console.log('Done...');
