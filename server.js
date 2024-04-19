@@ -72,12 +72,12 @@ const run = async () => {
         mqttConfig.password = process.env.MQTT_PASS;
     }
 
-    console.log(`Connecting to MQTT server ${MQTT_SERVER}:${MQTT_PORT}`);
+    console.log(`Connecting to MQTT server ${MQTT_SERVER}:${MQTT_PORT}...`);
     mqttClient = mqtt.connect(`mqtt://${MQTT_SERVER}:${MQTT_PORT}`, mqttConfig);
 
-    mqttClient.on('connect', () => {
-        console.log('MQTT server connected...');
-    });
+    // mqttClient.on('connect', () => {
+    //     console.log('MQTT server connected...');
+    // });
     
     mqttClient.on('error', (err) => {
         console.log(err);
@@ -87,6 +87,7 @@ const run = async () => {
     while (!mqttClient.connected) {
         await sleep(1000);
     }
+    console.log(`MQTT server connected`);
 
     console.log(`Setting UDP discovery on ${UDP_DISCOVER_IP}...`);
     broadcastClient = dgram.createSocket('udp4');
@@ -114,7 +115,7 @@ const run = async () => {
     });
     broadcastClient.bind(38899);
 
-    console.log('Setting up express server on port 3000...');
+    console.log(`Setting up express server on port ${WEBUI_PORT}...`);
     const app = express();
     app.use(express.json());
     app.use(cors());
