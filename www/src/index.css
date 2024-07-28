@@ -1,0 +1,19 @@
+body {
+  margin: 0;
+  font-family: fantasy, 'Roboto', sans-serif;
+  font-weight: 100;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: black;
+  color: whitesmoke;
+  overflow: hidden;
+}
+
+.iconSelected > path {
+  fill: #f1f505;
+}
+
+.iconDeselected > path {
+  fill: whitesmoke;
+  opacity: 0.6;
+}

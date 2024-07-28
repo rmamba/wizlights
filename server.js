@@ -1,7 +1,9 @@
 const express = require('express');
+const expressWs = require('express-ws');
 const cors = require('cors');
 const dgram = require('dgram');
 const mqtt = require('mqtt');
+const path = require('path');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 const publishValues = (process.env.PUBLISH_VALUES || 'dimming|temp|state|sceneId').split('|');
@@ -22,6 +24,7 @@ if (UPDATE_INTERVAL < 250) {
 let mqttClient;
 let broadcastClient;
 const cache = {};
+let openedWS = 0;
 
 const ProcessData = (ip, buffer) => {
     const data = JSON.parse(buffer.toString());
@@ -117,14 +120,10 @@ const run = async () => {
 
     console.log(`Setting up express server on port ${WEBUI_PORT}...`);
     const app = express();
+    expressWs(app);
     app.use(express.json());
     app.use(cors());
-
-    app.get('/', function (req, res) {
-        res.setHeader("Content-Type", "application/json");
-        res.status(200);
-        res.json(cache);
-    });
+    app.use('/', express.static(path.join(__dirname, 'www/build')));
 
     app.get('/:mac', function (req, res) {
         if (!cache[req.params.mac]) {
@@ -247,6 +246,22 @@ const run = async () => {
                 res.json({ message: 'ok' });
             }
         });
+    });
+
+    app.ws('/ws', function (ws, req) {
+        console.log('Client connected');
+        openedWS++;
+
+        ws.on('close', function close() {
+            console.log('disconnected');
+            openedWS--;
+        });
+
+        ws.on('error', console.error);
+    
+        setInterval(() => {
+            ws.send(JSON.stringify(cache));
+        }, 5000);
     });
 
     app.listen(WEBUI_PORT)

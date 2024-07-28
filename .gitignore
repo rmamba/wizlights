@@ -130,4 +130,6 @@ dist
 .pnp.*
 
 # launch.json
+__*.*
 launch.json
+www/build

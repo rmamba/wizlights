@@ -1,0 +1,15 @@
+.App {
+  text-align: center;
+}
+
+.connection-Disconnected {
+  fill: red;
+}
+
+.connection-Connecting {
+  fill: yellow;
+}
+
+.connection-Connected {
+  fill: forestgreen;
+}
