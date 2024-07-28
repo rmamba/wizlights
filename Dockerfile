@@ -14,7 +14,7 @@ COPY server.js .
 COPY package.json .
 RUN yarn install
 
-COPY --from=build /usr/src/app/www/build/ /usr/src/app/www/ 
+COPY --from=build /usr/src/app/www/build/ /usr/src/app/www/build/
 
 # Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
 CMD [ "node", "server.js" ] 
