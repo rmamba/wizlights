@@ -17,6 +17,7 @@ aliasValues.forEach(alias => {
 });
 
 const DEBUG = (process.env.DEBUG || 'false') === 'true';
+const LOG_REST = (process.env.LOG_REST || 'false') === 'true';
 const WEBUI_PORT = parseInt(process.env.WEBUI_PORT || '38899');
 const UDP_DISCOVER_IP = process.env.UDP_DISCOVER_IP || '255.255.255.255';
 const MQTT_CLIENT_ID = process.env.MQTT_CLIENT_ID || 'wizLights';
@@ -138,11 +139,17 @@ const run = async () => {
 
     app.get('/:mac', function (req, res) {
         if (!cache[req.params.mac]) {
+            if (LOG_REST) {
+                console.error(`ERROR: /${req.params.mac}`);
+            }
             res.status(404);
             res.json({
                 message: 'not found'
             });
             return;
+        }
+        if (LOG_REST) {
+            console.log(`OK: /${req.params.mac}`);
         }
         res.setHeader("Content-Type", "application/json");
         res.status(200);
@@ -151,6 +158,9 @@ const run = async () => {
 
     app.post('/:mac/status/:val', function (req, res) {
         if (!cache[req.params.mac]) {
+            if (LOG_REST) {
+                console.error(`ERROR: /${req.params.mac}/status/${req.params.val}`);
+            }
             res.status(404);
             res.json({
                 message: 'not found'
@@ -160,10 +170,16 @@ const run = async () => {
         const msg = `{"id":1,"method":"setState","params":{"state":${req.params.val === '1' ? 'true' : 'false'}}}`;
         broadcastClient.send(msg, 38899, cache[req.params.mac].ip, (err, bytes) => {
             if (err) {
+                if (LOG_REST) {
+                    console.error(`ERROR: /${req.params.mac}/status/${req.params.val}`);
+                }
                 console.error('broadcast error', err);
                 res.status(400);
                 // res
             } else {
+                if (LOG_REST) {
+                    console.log(`OK: /${req.params.mac}/status/${req.params.val}`);
+                }
                 res.setHeader("Content-Type", "application/json");
                 res.status(200);
                 res.json({ message: 'ok' });
@@ -183,9 +199,15 @@ const run = async () => {
         broadcastClient.send(msg, 38899, cache[req.params.mac].ip, (err, bytes) => {
             if (err) {
                 console.error('broadcast error', err);
+                if (LOG_REST) {
+                    console.error(`ERROR: /${req.params.mac}/dim/${req.params.dim}`);
+                }
                 res.status(400);
                 res.end();
             } else {
+                if (LOG_REST) {
+                    console.log(`OK: /${req.params.mac}/dim/${req.params.dim}`);
+                }
                 res.setHeader("Content-Type", "application/json");
                 res.status(200);
                 res.json({ message: 'ok' });
@@ -195,6 +217,9 @@ const run = async () => {
 
     app.post('/:mac/scene/:sceneId', function (req, res) {
         if (!cache[req.params.mac]) {
+            if (LOG_REST) {
+                console.error(`ERROR: /${req.params.mac}/scene/${req.params.sceneId}`);
+            }
             res.status(404);
             res.json({
                 message: 'not found'
@@ -204,10 +229,16 @@ const run = async () => {
         const msg = `{"id":1,"method":"setPilot","params":{"state":true,"sceneId":${limitParseInt(req.params.sceneId, 1, 32)}}}`;
         broadcastClient.send(msg, 38899, cache[req.params.mac].ip, (err, bytes) => {
             if (err) {
+                if (LOG_REST) {
+                    console.error(`ERROR: /${req.params.mac}/scene/${req.params.sceneId}`);
+                }
                 console.error('broadcast error', err);
                 res.status(400);
                 res.end();
             } else {
+                if (LOG_REST) {
+                    console.log(`OK: /${req.params.mac}/scene/${req.params.sceneId}`);
+                }
                 res.setHeader("Content-Type", "application/json");
                 res.status(200);
                 res.json({ message: 'ok' });
@@ -217,6 +248,9 @@ const run = async () => {
 
     app.post('/:mac/scene/:sceneId/dim/:dim', function (req, res) {
         if (!cache[req.params.mac]) {
+            if (LOG_REST) {
+                console.error(`ERROR: /${req.params.mac}/scene/${req.params.sceneId}/dim/${req.params.dim}`);
+            }
             res.status(404);
             res.json({
                 message: 'not found'
@@ -226,10 +260,16 @@ const run = async () => {
         const msg = `{"id":1,"method":"setPilot","params":{"state":true,"sceneId":${limitParseInt(req.params.sceneId, 1, 32)},"dimming":${limitParseInt(req.params.dim, 0, 100)}}}`;
         broadcastClient.send(msg, 38899, cache[req.params.mac].ip, (err, bytes) => {
             if (err) {
+                if (LOG_REST) {
+                    console.error(`ERROR: /${req.params.mac}/scene/${req.params.sceneId}/dim/${req.params.dim}`);
+                }
                 console.error('broadcast error', err);
                 res.status(400);
                 res.end();
             } else {
+                if (LOG_REST) {
+                    console.log(`OK: /${req.params.mac}/scene/${req.params.sceneId}/dim/${req.params.dim}`);
+                }
                 res.setHeader("Content-Type", "application/json");
                 res.status(200);
                 res.json({ message: 'ok' });
@@ -239,6 +279,9 @@ const run = async () => {
 
     app.post('/:mac/temp/:temp', function (req, res) {
         if (!cache[req.params.mac]) {
+            if (LOG_REST) {
+                console.error(`ERROR: /${req.params.mac}/temp/${req.params.temp}`);
+            }
             res.status(404);
             res.json({
                 message: 'not found'
@@ -248,10 +291,16 @@ const run = async () => {
         const msg = `{"id":1,"method":"setPilot","params":{"state":true,"temp":${limitParseInt(req.params.temp, 2200, 6100)}}}`;
         broadcastClient.send(msg, 38899, cache[req.params.mac].ip, (err, bytes) => {
             if (err) {
+                if (LOG_REST) {
+                    console.error(`ERROR: /${req.params.mac}/temp/${req.params.temp}`);
+                }
                 console.error('broadcast error', err);
                 res.status(400);
                 res.end();
             } else {
+                if (LOG_REST) {
+                    console.log(`OK: /${req.params.mac}/temp/${req.params.temp}`);
+                }
                 res.setHeader("Content-Type", "application/json");
                 res.status(200);
                 res.json({ message: 'ok' });
