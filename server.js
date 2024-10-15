@@ -7,6 +7,14 @@ const path = require('path');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 const publishValues = (process.env.PUBLISH_VALUES || 'dimming|temp|state|sceneId').split('|');
+const aliasValues = (process.env.ALIASES || 'macid:alias|macid2:alias2').split('|');
+const ALIASES = {};
+aliasValues.forEach(alias => {
+    const d = alias.split(':');
+    if (d.length === 2) {
+        ALIASES[d[0]] = d[1];
+    }
+});
 
 const DEBUG = (process.env.DEBUG || 'false') === 'true';
 const WEBUI_PORT = parseInt(process.env.WEBUI_PORT || '38899');
@@ -36,6 +44,9 @@ const ProcessData = (ip, buffer) => {
     const mqttPathPrefix = `/${MQTT_PREFIX}/${mac}`;
     if (!cache[mac]) {
         cache[mac] = {}
+        if (ALIASES[mac]) {
+            cache[mac]['alias'] = ALIASES[mac];
+        }
     }
     data.result.ip = ip;
     delete data.result.mac;

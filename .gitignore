@@ -133,3 +133,4 @@ dist
 __*.*
 launch.json
 www/build
+ALIASES.md

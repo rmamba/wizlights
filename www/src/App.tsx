@@ -56,6 +56,7 @@ export enum WizSceneENUM {
 }
 
 export interface IWizLightConfig {
+  macid: string;
   name: string;
   onState: boolean;
   sceneId: number;
@@ -93,7 +94,8 @@ function App() {
     }
     setSwitches(Object.keys(wsMessage).map(k => {
       return {
-        name: k,
+        name: wsMessage[k]['alias'] ?? k,
+        macid: k,
         onState: wsMessage[k]['state'],
         sceneId: wsMessage[k]['sceneId'],
         temp: wsMessage[k]['temp'],
@@ -122,7 +124,7 @@ function App() {
         textAlign: 'center',
         overflow: 'hidden',
       }}>
-        {switches.map(conf => <WizLightGroup key={conf.name} config={conf} />)}
+        {switches.map(conf => <WizLightGroup key={conf.macid} config={conf} />)}
       </Grid>
     </Grid>
   );
